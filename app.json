@@ -1,0 +1,39 @@
+{
+  "expo": {
+    "name": "Triangle Skill Game",
+    "slug": "triangle_skill_game",
+    "version": "1.0.1",
+    "orientation": "portrait",
+    "sdkVersion": "42.0.0",
+    "platforms": [
+      "android"
+    ],
+    "icon": "./assets/icon.png",
+    "splash": {
+      "image": "./assets/splash.png",
+      "resizeMode": "contain",
+      "backgroundColor": "#ffffff"
+    },
+    "primaryColor": "#ffffff",
+    "updates": {
+      "fallbackToCacheTimeout": 0
+    },
+    "assetBundlePatterns": [
+      "**/*"
+    ],
+    "android": {
+      "package": "com.elderdesignconcepts.triangleskillgame",
+      "config": {
+        "googleMobileAdsAppId": "ca-app-pub-9896015466295501~5810522851"
+      },
+      "adaptiveIcon": {
+        "foregroundImage": "./assets/adaptive-icon.png",
+        "backgroundColor": "#F5F5F7"
+      }
+    },
+    "androidStatusBar": {
+      "backgroundColor": "#FFFFFF",
+      "translucent": false
+    }
+  }
+}

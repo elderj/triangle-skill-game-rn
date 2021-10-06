@@ -1,0 +1,356 @@
+import React from "react";
+import {
+  Dimensions,
+  ImageBackground,
+  Linking,
+  StyleSheet,
+  TouchableOpacity,
+  Text,
+  View,
+} from "react-native";
+import Constants from 'expo-constants';
+import GameWonModal from "./GameWonModal";
+
+import { AdMobInterstitial } from "expo-ads-admob";
+
+import Circle from "./Circle";
+import { defaultSpaces } from "../data/boardValues";
+import RulesModal from "./RulesModal";
+
+const windowHeight = Dimensions.get("window").height;
+const VALUES = defaultSpaces.small;
+
+const testID = 'ca-app-pub-3940256099942544/1033173712';
+const productionID = 'ca-app-pub-9896015466295501/4766046254';
+// Is a real device and running in production.
+// const adUnitID = productionID;
+const adUnitID = testID
+
+const prodCheck= Constants.isDevice && !__DEV__ ? "prod" : "dev"
+
+
+const height = Dimensions.get('window').height
+
+export default class GameBoard extends React.Component {
+  constructor(props) {
+    super(props);
+
+    this.pegsRemaining = 14;
+    this.state = {
+      spaces: VALUES,
+      modalVisible: false,
+      gameWonModalVisible: false,
+    };
+  }
+
+  showModal() {
+    this.setState({ modalVisible: true });
+  }
+  hideModal() {
+    this.setState({ modalVisible: false });
+  }
+
+  showInterstitial = async () => {
+    AdMobInterstitial.setAdUnitID(adUnitID); // Test ID, Replace with your-admob-unit-id
+
+    try {
+      await AdMobInterstitial.requestAdAsync();
+      await AdMobInterstitial.showAdAsync();
+    } catch (e) {
+      console.log(e);
+    }
+  };
+
+  reset() {
+    this.pegsRemaining = 14;
+    this.setState({
+
+
+      spaces: [
+        ["open"],
+        ["filled", "filled"],
+        ["filled", "filled", "filled"],
+        ["filled", "filled", "filled", "filled"],
+        ["filled", "filled", "filled", "filled", "filled"],
+      ],
+      firstSelection: [],
+    });
+  }
+
+  clickSpace(col, row) {
+    if (
+      this.state.firstSelection === undefined ||
+      this.state.firstSelection.length === 0
+    ) {
+      // First Selection
+      if (this.state.spaces[row][col] === "filled") {
+        this.setState({ firstSelection: [row, col] });
+        const newSpaces = this.state.spaces.slice();
+        newSpaces[row][col] = "selected";
+        this.setState({ spaces: newSpaces });
+      }
+    } else {
+      // Second Selection
+      let previouslySelectedRow = this.state.firstSelection[0];
+      let previouslySelectedCol = this.state.firstSelection[1];
+      const newSpaces = this.state.spaces.slice();
+      newSpaces[previouslySelectedRow][previouslySelectedCol] = "filled";
+
+      if (this.state.spaces[row][col] === "open") {
+        //Check 1: horizontal moves
+        if (
+          row === previouslySelectedRow &&
+          Math.abs(col - previouslySelectedCol) === 2
+        ) {
+          let middleCol = col > previouslySelectedCol ? col - 1 : col + 1;
+          if (this.state.spaces[row][middleCol] === "filled") {
+            newSpaces[row][col] = "filled";
+            newSpaces[row][previouslySelectedCol] = "open";
+            newSpaces[row][middleCol] = "open";
+            this.pegsRemaining--;
+          }
+        }
+
+        // Check 2: Diagonal (Normal) Moves
+        if (
+          col === previouslySelectedCol &&
+          Math.abs(row - previouslySelectedRow) === 2
+        ) {
+          let middleRow = row > previouslySelectedRow ? row - 1 : row + 1;
+          if (this.state.spaces[middleRow][col] === "filled") {
+            newSpaces[previouslySelectedRow][previouslySelectedCol] = "open";
+            newSpaces[middleRow][col] = "open";
+            newSpaces[row][col] = "filled";
+            this.pegsRemaining--;
+          }
+        }
+        // // Check 3: Diagonal (Inverse) Moves
+        if (
+          Math.abs(row - previouslySelectedRow) === 2 &&
+          Math.abs(col - previouslySelectedCol) === 2
+        ) {
+          let middleRow = row > previouslySelectedRow ? row - 1 : row + 1;
+          let middleCol = col > previouslySelectedCol ? col - 1 : col + 1;
+          if (this.state.spaces[middleRow][middleCol] === "filled") {
+            newSpaces[previouslySelectedRow][previouslySelectedCol] = "open";
+            newSpaces[middleRow][middleCol] = "open";
+            newSpaces[row][col] = "filled";
+            this.pegsRemaining--;
+          }
+        }
+      }
+      this.setState({ spaces: newSpaces, firstSelection: [] });
+      if(this.pegsRemaining === 1){
+        this.setState({gameWonModalVisible: true})
+      }
+    }
+  }
+
+
+  renderSpaces() {
+    const rows = [];
+    VALUES.forEach((row, rIdx) => {
+      const cols = [];
+      row.forEach((col, cIdx) => {
+        cols.push(
+          <TouchableOpacity
+            key={cIdx}
+            onPress={() => {
+              this.clickSpace(cIdx, rIdx);
+            }}
+          >
+            <Circle condition={this.state.spaces[rIdx][cIdx]} />
+          </TouchableOpacity>
+        );
+      });
+      rows.push(
+        <View key={rIdx} style={styles.Row}>
+          {cols}
+        </View>
+      );
+    });
+
+    return <View>{rows}</View>;
+  }
+
+  render() {
+    return (
+      <View style={styles.GameLogicContainer}>
+        <RulesModal
+          modalVisible={this.state.modalVisible}
+          hide={() => this.hideModal()}
+          fontsLoaded={this.props.fontsLoaded}
+        />
+        <ImageBackground
+          source={require("../assets/tri.png")}
+          style={{
+            aspectRatio: 1,
+            resizeMode: "contain",
+          }}
+        >
+          <Text>{prodCheck}</Text>
+          <View style={styles.Board}>{this.renderSpaces()}</View>
+          <View style={styles.PegsRemainingContainer}>
+            {!this.props.fontsLoaded ? (
+              <Text style={styles.PegsRemaining}>
+                Pegs Remaining: {this.pegsRemaining}
+              </Text>
+            ) : (
+              <Text
+                style={{
+                  ...styles.PegsRemaining,
+                  fontFamily: "Quicksand_600SemiBold",
+                }}
+              >
+                Pegs Remaining: {this.pegsRemaining}
+              </Text>
+            )}
+          </View>
+        </ImageBackground>
+        <GameWonModal
+          modalVisible={this.state.gameWonModalVisible}
+          hide={() => {  
+          this.setState({gameWonModalVisible: false});
+          this.reset();
+          }
+        }
+          fontsLoaded={this.props.fontsLoaded}
+        />
+        
+          <ImageBackground
+            source={require("../assets/trianglesGray.png")}
+            style={styles.ImageBg}
+          >
+            <View style={styles.FooterLine}>
+            <TouchableOpacity
+              onPress={() => {
+                this.showModal();
+              }}
+            >
+              <View style={styles.ButtonContentContainer}>
+                {!this.props.fontsLoaded ? (
+                  <Text style={styles.ButtonContent}>Rules</Text>
+                ) : (
+                  <Text
+                    style={{
+                      ...styles.ButtonContent,
+                      fontFamily: "Quicksand_600SemiBold",
+                    }}
+                  >
+                    Rules
+                  </Text>
+                )}
+              </View>
+            </TouchableOpacity>
+            <TouchableOpacity
+              onPress={() => {
+                this.showInterstitial();
+                this.reset();
+              }}
+            >
+              <View style={styles.ButtonContentContainer}>
+                {!this.props.fontsLoaded ? (
+                  <Text style={styles.ButtonContent}>Reset</Text>
+                ) : (
+                  <Text
+                    style={{
+                      ...styles.ButtonContent,
+                      fontFamily: "Quicksand_600SemiBold",
+                    }}
+                  >
+                    Reset
+                  </Text>
+                )}
+              </View>
+            </TouchableOpacity>
+            </View>
+            <View style={styles.FooterLine}>
+
+            <View style={styles.FooterLine}>
+                <Text onPress={() => Linking.openURL('https://elderdesignconcepts.com/#/portfolio/triangle-skill-game/terms')} style={{...styles.informationalLinkText, textAlign: "right"}}>Terms of Service</Text>
+              <Text style={styles.separator}>|</Text>
+                <Text onPress={() => Linking.openURL('https://elderdesignconcepts.com/#/portfolio/triangle-skill-game/privacy')} style={{...styles.informationalLinkText, textAlign: "left"}}>Privacy Policy</Text>
+            </View>
+
+            </View>
+
+
+
+          </ImageBackground>
+
+
+      </View>
+    );
+  }
+}
+
+const styles = StyleSheet.create({
+  GameLogicContainer: {
+    flex: 1,
+    justifyContent: "space-between",
+    alignContent: "center",
+
+    width: "100%",
+  },
+
+  Board: {
+    flex: 1,
+    justifyContent: "center",
+    alignContent: "center",
+    marginTop: windowHeight / 12,
+  },
+
+  Row: {
+    alignContent: "center",
+    justifyContent: "center",
+    flexDirection: "row",
+  },
+
+  PegsRemainingContainer: {
+    justifyContent: "center",
+  },
+  PegsRemaining: {
+    textAlign: "center",
+    fontSize:0.03*height,
+    color: "white",
+    marginTop: 20,
+  },
+  ImageBg: {
+    backgroundColor: "gray",
+    borderTopColor: "black",
+    borderTopWidth: 2,
+    paddingVertical: 3,
+  },
+  FooterLine: {
+    justifyContent: "center",
+    flexDirection: "row"
+  },
+  ButtonContentContainer: {
+  
+    backgroundColor: "white",
+    borderRadius: 5,
+    marginTop: 20,
+    marginBottom: 20,
+    margin: 10,
+  },
+  ButtonContent: {
+    margin: 4,
+    paddingHorizontal: 6,
+    textAlign: "center",
+    backgroundColor: "white",
+    color: "black",
+    fontSize: 18,
+    paddingHorizontal: 10,
+  },
+  informationalLinkText:{
+    color: "orange",
+    fontWeight: "bold",
+    width: 200,
+    paddingHorizontal: 10,
+    paddingTop: 7,
+    fontSize:0.016*height,
+    textAlign: "center",
+  },
+  separator: { fontSize: 24, fontWeight:"bold", color: "teal"}
+
+});
