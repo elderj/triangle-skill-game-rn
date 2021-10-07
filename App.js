@@ -20,8 +20,6 @@ export default function App() {
     Pacifico_400Regular,
   });
 
-  console.log("---------> " + fontsLoaded);
-
   return (
     <View>
       <Modal animationType="slide" visible={modalVisible}>

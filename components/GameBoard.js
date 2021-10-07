@@ -8,28 +8,19 @@ import {
   Text,
   View,
 } from "react-native";
-import Constants from 'expo-constants';
-import GameWonModal from "./GameWonModal";
 
 import { AdMobInterstitial } from "expo-ads-admob";
-
+import GameWonModal from "./GameWonModal";
 import Circle from "./Circle";
-import { defaultSpaces } from "../data/boardValues";
 import RulesModal from "./RulesModal";
 
-const windowHeight = Dimensions.get("window").height;
+import { defaultSpaces } from "../data/boardValues";
 const VALUES = defaultSpaces.small;
-
-const testID = 'ca-app-pub-3940256099942544/1033173712';
-const productionID = 'ca-app-pub-9896015466295501/4766046254';
-// Is a real device and running in production.
-// const adUnitID = productionID;
-const adUnitID = testID
-
-const prodCheck= Constants.isDevice && !__DEV__ ? "prod" : "dev"
-
-
 const height = Dimensions.get('window').height
+
+// const testID = 'ca-app-pub-3940256099942544/1033173712';
+const productionID = 'ca-app-pub-9896015466295501/4766046254';
+const adUnitID = productionID;
 
 export default class GameBoard extends React.Component {
   constructor(props) {
@@ -279,8 +270,6 @@ export default class GameBoard extends React.Component {
 
             </View>
 
-
-
           </ImageBackground>
 
 
@@ -294,7 +283,6 @@ const styles = StyleSheet.create({
     flex: 1,
     justifyContent: "space-between",
     alignContent: "center",
-
     width: "100%",
   },
 
@@ -302,7 +290,7 @@ const styles = StyleSheet.create({
     flex: 1,
     justifyContent: "center",
     alignContent: "center",
-    marginTop: windowHeight / 12,
+    marginTop: height / 12,
   },
 
   Row: {

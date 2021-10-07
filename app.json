@@ -2,7 +2,7 @@
   "expo": {
     "name": "Triangle Skill Game",
     "slug": "triangle_skill_game",
-    "version": "1.0.2",
+    "version": "1.1.0",
     "orientation": "portrait",
     "sdkVersion": "42.0.0",
     "platforms": [
@@ -22,7 +22,7 @@
       "**/*"
     ],
     "android": {
-      "versionCode": 3,
+      "versionCode": 4,
       "package": "com.elderdesignconcepts.triangleskillgame",
       "config": {
         "googleMobileAdsAppId": "ca-app-pub-9896015466295501~5810522851"
