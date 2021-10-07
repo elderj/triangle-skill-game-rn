@@ -34,8 +34,8 @@ const height = Dimensions.get('window').height
 export default class GameBoard extends React.Component {
   constructor(props) {
     super(props);
-
     this.pegsRemaining = 14;
+    this.resetCount = 0;
     this.state = {
       spaces: VALUES,
       modalVisible: false,
@@ -65,7 +65,6 @@ export default class GameBoard extends React.Component {
     this.pegsRemaining = 14;
     this.setState({
 
-
       spaces: [
         ["open"],
         ["filled", "filled"],
@@ -75,6 +74,15 @@ export default class GameBoard extends React.Component {
       ],
       firstSelection: [],
     });
+  }
+
+  handleReset() {
+    if (this.pegsRemaining < 14) {
+      this.resetCount % 2 == 0 && this.showInterstitial();
+      this.resetCount++;
+    }
+    
+    this.reset();
   }
 
   clickSpace(col, row) {
@@ -188,7 +196,6 @@ export default class GameBoard extends React.Component {
             resizeMode: "contain",
           }}
         >
-          <Text>{prodCheck}</Text>
           <View style={styles.Board}>{this.renderSpaces()}</View>
           <View style={styles.PegsRemainingContainer}>
             {!this.props.fontsLoaded ? (
@@ -243,9 +250,7 @@ export default class GameBoard extends React.Component {
               </View>
             </TouchableOpacity>
             <TouchableOpacity
-              onPress={() => {
-                this.showInterstitial();
-                this.reset();
+              onPress={() => { this.handleReset()
               }}
             >
               <View style={styles.ButtonContentContainer}>
@@ -311,7 +316,7 @@ const styles = StyleSheet.create({
   },
   PegsRemaining: {
     textAlign: "center",
-    fontSize:0.03*height,
+    fontSize: 0.03 * height,
     color: "white",
     marginTop: 20,
   },
@@ -323,10 +328,9 @@ const styles = StyleSheet.create({
   },
   FooterLine: {
     justifyContent: "center",
-    flexDirection: "row"
+    flexDirection: "row",
   },
   ButtonContentContainer: {
-  
     backgroundColor: "white",
     borderRadius: 5,
     marginTop: 20,
@@ -342,15 +346,19 @@ const styles = StyleSheet.create({
     fontSize: 18,
     paddingHorizontal: 10,
   },
-  informationalLinkText:{
+  informationalLinkText: {
     color: "orange",
     fontWeight: "bold",
     width: 200,
-    paddingHorizontal: 10,
-    paddingTop: 7,
-    fontSize:0.016*height,
+    paddingHorizontal: 5,
+    fontSize: 0.016 * height,
     textAlign: "center",
+    textAlignVertical: "center"
   },
-  separator: { fontSize: 24, fontWeight:"bold", color: "teal"}
-
+  separator: {
+          fontSize: 24,
+          fontWeight: "bold",
+          color: "teal",
+          textAlignVertical: "center"
+  },
 });

@@ -1,12 +1,11 @@
 import React, { useState } from "react";
 import { ImageBackground, Modal, StyleSheet, Text, View } from 'react-native';
-import {
-  useFonts,  
+import { useFonts, Pacifico_400Regular } from '@expo-google-fonts/pacifico';
+import { 
   Quicksand_400Regular,
   Quicksand_600SemiBold,
   Quicksand_700Bold,
 } from "@expo-google-fonts/quicksand";
-import {  Pacifico_400Regular } from "@expo-google-fonts/pacifico";
 import GameBoard from './components/GameBoard';
 import SplashModalContent from './components/SplashModalContent';
 
@@ -20,6 +19,8 @@ export default function App() {
     Quicksand_700Bold,
     Pacifico_400Regular,
   });
+
+  console.log("---------> " + fontsLoaded);
 
   return (
     <View>

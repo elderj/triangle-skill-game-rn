@@ -8,7 +8,7 @@
     "eject": "expo eject"
   },
   "dependencies": {
-    "@expo-google-fonts/pacifico": "^0.1.0",
+    "@expo-google-fonts/pacifico": "^0.2.0",
     "@expo-google-fonts/quicksand": "^0.1.0",
     "expo": "~40.0.0",
     "expo-ads-admob": "^8.4.0",
