@@ -16,11 +16,17 @@ import RulesModal from "./RulesModal";
 
 import { defaultSpaces } from "../data/boardValues";
 const VALUES = defaultSpaces.small;
-const height = Dimensions.get('window').height
+const height = Dimensions.get("window").height;
 
-// const testID = 'ca-app-pub-3940256099942544/1033173712';
-const productionID = 'ca-app-pub-9896015466295501/4766046254';
-const adUnitID = productionID;
+// For local testing:
+const testID = "ca-app-pub-3940256099942544/1033173712";
+const adUnitID = testID;
+
+// For prod build/release:
+// const adUnitID = productionID;
+// const productionID = 'ca-app-pub-9896015466295501/4766046254';
+
+// const adUnitID = productionID;
 
 export default class GameBoard extends React.Component {
   constructor(props) {
@@ -55,7 +61,6 @@ export default class GameBoard extends React.Component {
   reset() {
     this.pegsRemaining = 14;
     this.setState({
-
       spaces: [
         ["open"],
         ["filled", "filled"],
@@ -72,7 +77,7 @@ export default class GameBoard extends React.Component {
       this.resetCount % 2 == 0 && this.showInterstitial();
       this.resetCount++;
     }
-    
+
     this.reset();
   }
 
@@ -139,12 +144,11 @@ export default class GameBoard extends React.Component {
         }
       }
       this.setState({ spaces: newSpaces, firstSelection: [] });
-      if(this.pegsRemaining === 1){
-        this.setState({gameWonModalVisible: true})
+      if (this.pegsRemaining === 1) {
+        this.setState({ gameWonModalVisible: true });
       }
     }
   }
-
 
   renderSpaces() {
     const rows = [];
@@ -207,19 +211,18 @@ export default class GameBoard extends React.Component {
         </ImageBackground>
         <GameWonModal
           modalVisible={this.state.gameWonModalVisible}
-          hide={() => {  
-          this.setState({gameWonModalVisible: false});
-          this.reset();
-          }
-        }
+          hide={() => {
+            this.setState({ gameWonModalVisible: false });
+            this.reset();
+          }}
           fontsLoaded={this.props.fontsLoaded}
         />
-        
-          <ImageBackground
-            source={require("../assets/trianglesGray.png")}
-            style={styles.ImageBg}
-          >
-            <View style={styles.FooterLine}>
+
+        <ImageBackground
+          source={require("../assets/trianglesGray.png")}
+          style={styles.ImageBg}
+        >
+          <View style={styles.FooterLine}>
             <TouchableOpacity
               onPress={() => {
                 this.showModal();
@@ -241,7 +244,8 @@ export default class GameBoard extends React.Component {
               </View>
             </TouchableOpacity>
             <TouchableOpacity
-              onPress={() => { this.handleReset()
+              onPress={() => {
+                this.handleReset();
               }}
             >
               <View style={styles.ButtonContentContainer}>
@@ -259,20 +263,33 @@ export default class GameBoard extends React.Component {
                 )}
               </View>
             </TouchableOpacity>
-            </View>
+          </View>
+          <View style={styles.FooterLine}>
             <View style={styles.FooterLine}>
-
-            <View style={styles.FooterLine}>
-                <Text onPress={() => Linking.openURL('https://elderdesignconcepts.com/#/portfolio/triangle-skill-game/terms')} style={{...styles.informationalLinkText, textAlign: "right"}}>Terms of Service</Text>
+              <Text
+                onPress={() =>
+                  Linking.openURL(
+                    "https://elderdesignconcepts.com/#/portfolio/triangle-skill-game/terms"
+                  )
+                }
+                style={{ ...styles.informationalLinkText, textAlign: "right" }}
+              >
+                Terms of Service
+              </Text>
               <Text style={styles.separator}>|</Text>
-                <Text onPress={() => Linking.openURL('https://elderdesignconcepts.com/#/portfolio/triangle-skill-game/privacy')} style={{...styles.informationalLinkText, textAlign: "left"}}>Privacy Policy</Text>
+              <Text
+                onPress={() =>
+                  Linking.openURL(
+                    "https://elderdesignconcepts.com/#/portfolio/triangle-skill-game/privacy"
+                  )
+                }
+                style={{ ...styles.informationalLinkText, textAlign: "left" }}
+              >
+                Privacy Policy
+              </Text>
             </View>
-
-            </View>
-
-          </ImageBackground>
-
-
+          </View>
+        </ImageBackground>
       </View>
     );
   }
@@ -341,12 +358,12 @@ const styles = StyleSheet.create({
     paddingHorizontal: 5,
     fontSize: 0.016 * height,
     textAlign: "center",
-    textAlignVertical: "center"
+    textAlignVertical: "center",
   },
   separator: {
-          fontSize: 24,
-          fontWeight: "bold",
-          color: "teal",
-          textAlignVertical: "center"
+    fontSize: 24,
+    fontWeight: "bold",
+    color: "teal",
+    textAlignVertical: "center",
   },
 });

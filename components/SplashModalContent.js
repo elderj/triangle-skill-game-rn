@@ -1,6 +1,5 @@
-import React, {useState} from "react";
+import React, { useState } from "react";
 import {
-  CheckBox,
   Dimensions,
   Linking,
   TouchableOpacity,
@@ -11,10 +10,11 @@ import {
   View,
 } from "react-native";
 
-const height = Dimensions.get('window').height
+import Checkbox from "expo-checkbox";
+
+const height = Dimensions.get("window").height;
 
 export default function SplashModalContent(props) {
-
   const [termsAccepted, setTermsAccepted] = useState(false);
 
   return (
@@ -58,19 +58,28 @@ export default function SplashModalContent(props) {
         </View>
 
         <View style={styles.checkboxView}>
-          <CheckBox 
-          value={termsAccepted}
-          onValueChange={setTermsAccepted}
+          <Checkbox
+            style={styles.checkbox}
+            value={termsAccepted}
+            onValueChange={setTermsAccepted}
           />
           <Text style={styles.checkboxText}>I read and accept the </Text>
-            
-            <Text style={styles.informationalLinkText} onPress={() => Linking.openURL('https://elderdesignconcepts.com/#/portfolio/triangle-skill-game/terms')} >Terms of Service</Text>
 
+          <Text
+            style={styles.informationalLinkText}
+            onPress={() =>
+              Linking.openURL(
+                "https://elderdesignconcepts.com/#/portfolio/triangle-skill-game/terms"
+              )
+            }
+          >
+            Terms of Service
+          </Text>
         </View>
 
         <TouchableOpacity
-              onPress={() => props.setModalVisible(false)}
-              disabled ={!termsAccepted}
+          onPress={() => props.setModalVisible(false)}
+          disabled={!termsAccepted}
         >
           <View style={styles.ButtonContentContainer}>
             {!props.fontsLoaded ? (
@@ -93,18 +102,17 @@ export default function SplashModalContent(props) {
 }
 
 const styles = StyleSheet.create({
-
   SplashTitle: {
     marginTop: 100,
     color: "white",
-    fontSize:0.05*height,
+    fontSize: 0.05 * height,
     textAlign: "center",
   },
 
   logoFont: {
     color: "white",
     textAlign: "center",
-    fontSize:0.03*height,
+    fontSize: 0.03 * height,
   },
 
   StartButton: {
@@ -126,26 +134,28 @@ const styles = StyleSheet.create({
     fontSize: 18,
   },
 
+  checkboxView: {
+    flexDirection: "row",
+    justifyContent: "center",
+  },
 
-  checkboxView:{
-    flexDirection:"row",
-    justifyContent: "center"
+  checkbox: {
+    backgroundColor: "gray",
   },
 
   checkboxText: {
     color: "white",
     fontSize: 18,
-    fontSize:0.021*height,
-    textAlignVertical: "center"
-
+    fontSize: 0.021 * height,
+    textAlignVertical: "center",
+    marginRight: 5,
+    paddingLeft: 8,
   },
 
-  informationalLinkText:{
+  informationalLinkText: {
     color: "orange",
     fontWeight: "bold",
-    fontSize:0.021*height,
-    textAlignVertical: "center"
-
-  }
-
+    fontSize: 0.021 * height,
+    textAlignVertical: "center",
+  },
 });

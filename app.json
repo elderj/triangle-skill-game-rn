@@ -4,7 +4,6 @@
     "slug": "triangle_skill_game",
     "version": "1.1.0",
     "orientation": "portrait",
-    "sdkVersion": "42.0.0",
     "platforms": [
       "android"
     ],
