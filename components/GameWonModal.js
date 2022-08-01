@@ -1,7 +1,7 @@
 import React from "react";
 import { Modal, StyleSheet, Text, TouchableOpacity, View } from "react-native";
 
-export default function PPModal(props) {
+export default function GameWonModal(props) {
   return (
     <Modal
       animationType="slide"
