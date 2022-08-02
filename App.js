@@ -1,18 +1,16 @@
 import React, { useState } from "react";
-import { ImageBackground, Modal, StyleSheet, Text, View } from 'react-native';
-import { useFonts, Pacifico_400Regular } from '@expo-google-fonts/pacifico';
-import { 
+import { ImageBackground, Modal, StyleSheet, Text, View } from "react-native";
+import { useFonts, Pacifico_400Regular } from "@expo-google-fonts/pacifico";
+import {
   Quicksand_400Regular,
   Quicksand_600SemiBold,
   Quicksand_700Bold,
 } from "@expo-google-fonts/quicksand";
-import GameBoard from './components/GameBoard';
-import SplashModalContent from './components/SplashModalContent';
+import GameBoard from "./components/GameBoard";
+import SplashModalContent from "./components/SplashModalContent";
 
- 
 export default function App() {
-
-  const [modalVisible, setModalVisible] = useState(true);
+  const [rulesModalVisible, setModalVisible] = useState(true);
   let [fontsLoaded] = useFonts({
     Quicksand_400Regular,
     Quicksand_600SemiBold,
@@ -22,7 +20,7 @@ export default function App() {
 
   return (
     <View>
-      <Modal animationType="slide" visible={modalVisible}>
+      <Modal animationType="slide" visible={rulesModalVisible}>
         <SplashModalContent
           fontsLoaded={fontsLoaded}
           setModalVisible={setModalVisible}
@@ -32,7 +30,6 @@ export default function App() {
         source={require("./assets/triangles.png")}
         style={{ width: "100%", height: "100%", alignItems: "center" }}
       >
-
         {!fontsLoaded ? (
           <Text style={styles.title}>Triangle Skill Game</Text>
         ) : (
@@ -47,21 +44,20 @@ export default function App() {
 }
 
 const styles = StyleSheet.create({
-
-  SplashModal:{
+  SplashModal: {
     flex: 1,
     backgroundColor: "green",
     alignContent: "center",
     justifyContent: "center",
   },
   SplashModalTitle: {
-    textAlign: 'center'
+    textAlign: "center",
   },
 
   title: {
     marginTop: 40,
-    color: 'white',
-    alignItems: 'center',
+    color: "white",
+    alignItems: "center",
     fontSize: 35,
   },
 });

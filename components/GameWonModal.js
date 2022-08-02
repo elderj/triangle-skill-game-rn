@@ -6,7 +6,7 @@ export default function GameWonModal(props) {
     <Modal
       animationType="slide"
       transparent={true}
-      visible={props.modalVisible}
+      visible={props.rulesModalVisible}
     >
       <View style={styles.ModalBackground}>
         <View style={styles.modalView}>

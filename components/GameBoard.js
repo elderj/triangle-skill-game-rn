@@ -14,19 +14,21 @@ import GameWonModal from "./GameWonModal";
 import Circle from "./Circle";
 import RulesModal from "./RulesModal";
 
-import { defaultSpaces } from "../data/boardValues";
-const VALUES = defaultSpaces.small;
+import {
+  getDefaultSpaces,
+  getAllEmptySpaces,
+  getSpecificEmpty,
+} from "../data/boardValueUtils";
+import EmptySpaceSelectionModal from "./EmptySpaceSelectionModal";
 const height = Dimensions.get("window").height;
 
 // For local testing:
-const testID = "ca-app-pub-3940256099942544/1033173712";
-const adUnitID = testID;
+// const testID = "ca-app-pub-3940256099942544/1033173712";
+// const adUnitID = testID;
 
 // For prod build/release:
-// const adUnitID = productionID;
-// const productionID = 'ca-app-pub-9896015466295501/4766046254';
-
-// const adUnitID = productionID;
+const productionID = "ca-app-pub-9896015466295501/4766046254";
+const adUnitID = productionID;
 
 export default class GameBoard extends React.Component {
   constructor(props) {
@@ -34,17 +36,26 @@ export default class GameBoard extends React.Component {
     this.pegsRemaining = 14;
     this.resetCount = 0;
     this.state = {
-      spaces: VALUES,
-      modalVisible: false,
+      spaces: getDefaultSpaces(),
+      rulesModalVisible: false,
       gameWonModalVisible: false,
+      setEmptySpaceModalVisible: false,
+      emptySpace: { col: 0, row: 0 },
     };
   }
 
-  showModal() {
-    this.setState({ modalVisible: true });
+  showRulesModal() {
+    this.setState({ rulesModalVisible: true });
   }
-  hideModal() {
-    this.setState({ modalVisible: false });
+  hideRulesModal() {
+    this.setState({ rulesModalVisible: false });
+  }
+
+  showSetEmptyModal() {
+    this.setState({ setEmptySpaceModalVisible: true });
+  }
+  hideSetEmptyModal() {
+    this.setState({ setEmptySpaceModalVisible: false });
   }
 
   showInterstitial = async () => {
@@ -61,13 +72,10 @@ export default class GameBoard extends React.Component {
   reset() {
     this.pegsRemaining = 14;
     this.setState({
-      spaces: [
-        ["open"],
-        ["filled", "filled"],
-        ["filled", "filled", "filled"],
-        ["filled", "filled", "filled", "filled"],
-        ["filled", "filled", "filled", "filled", "filled"],
-      ],
+      spaces: getSpecificEmpty(
+        this.state.emptySpace.col,
+        this.state.emptySpace.row
+      ),
       firstSelection: [],
     });
   }
@@ -150,19 +158,31 @@ export default class GameBoard extends React.Component {
     }
   }
 
-  renderSpaces() {
+  setEmpty(col, row) {
+    this.setState({
+      spaces: getSpecificEmpty(col, row),
+      emptySpace: { col, row },
+      firstSelection: [],
+    });
+    this.pegsRemaining = 14;
+    this.hideSetEmptyModal();
+  }
+
+  renderSpaces(spacesToRender, gameSetupMode) {
     const rows = [];
-    VALUES.forEach((row, rIdx) => {
+    spacesToRender.forEach((row, rIdx) => {
       const cols = [];
       row.forEach((col, cIdx) => {
         cols.push(
           <TouchableOpacity
             key={cIdx}
             onPress={() => {
-              this.clickSpace(cIdx, rIdx);
+              gameSetupMode
+                ? this.setEmpty(cIdx, rIdx)
+                : this.clickSpace(cIdx, rIdx);
             }}
           >
-            <Circle condition={this.state.spaces[rIdx][cIdx]} />
+            <Circle condition={spacesToRender[rIdx][cIdx]} />
           </TouchableOpacity>
         );
       });
@@ -180,8 +200,8 @@ export default class GameBoard extends React.Component {
     return (
       <View style={styles.GameLogicContainer}>
         <RulesModal
-          modalVisible={this.state.modalVisible}
-          hide={() => this.hideModal()}
+          rulesModalVisible={this.state.rulesModalVisible}
+          hide={() => this.hideRulesModal()}
           fontsLoaded={this.props.fontsLoaded}
         />
         <ImageBackground
@@ -191,7 +211,9 @@ export default class GameBoard extends React.Component {
             resizeMode: "contain",
           }}
         >
-          <View style={styles.Board}>{this.renderSpaces()}</View>
+          <View style={styles.Board}>
+            {this.state.spaces && this.renderSpaces(this.state.spaces, false)}
+          </View>
           <View style={styles.PegsRemainingContainer}>
             {!this.props.fontsLoaded ? (
               <Text style={styles.PegsRemaining}>
@@ -210,14 +232,21 @@ export default class GameBoard extends React.Component {
           </View>
         </ImageBackground>
         <GameWonModal
-          modalVisible={this.state.gameWonModalVisible}
+          rulesModalVisible={this.state.gameWonModalVisible}
           hide={() => {
             this.setState({ gameWonModalVisible: false });
             this.reset();
           }}
           fontsLoaded={this.props.fontsLoaded}
         />
-
+        <EmptySpaceSelectionModal
+          rulesModalVisible={this.state.setEmptySpaceModalVisible}
+          hide={() => {
+            this.setState({ setEmptySpaceModalVisible: false });
+          }}
+          fontsLoaded={this.props.fontsLoaded}
+          renderSpaces={() => this.renderSpaces(getAllEmptySpaces(), true)}
+        />
         <ImageBackground
           source={require("../assets/trianglesGray.png")}
           style={styles.ImageBg}
@@ -225,7 +254,7 @@ export default class GameBoard extends React.Component {
           <View style={styles.FooterLine}>
             <TouchableOpacity
               onPress={() => {
-                this.showModal();
+                this.showRulesModal();
               }}
             >
               <View style={styles.ButtonContentContainer}>
@@ -239,6 +268,26 @@ export default class GameBoard extends React.Component {
                     }}
                   >
                     Rules
+                  </Text>
+                )}
+              </View>
+            </TouchableOpacity>
+            <TouchableOpacity
+              onPress={() => {
+                this.showSetEmptyModal();
+              }}
+            >
+              <View style={styles.ButtonContentContainer}>
+                {!this.props.fontsLoaded ? (
+                  <Text style={styles.ButtonContent}>Set Empty</Text>
+                ) : (
+                  <Text
+                    style={{
+                      ...styles.ButtonContent,
+                      fontFamily: "Quicksand_600SemiBold",
+                    }}
+                  >
+                    Set Empty
                   </Text>
                 )}
               </View>

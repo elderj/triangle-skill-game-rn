@@ -1,7 +1,14 @@
 import React from "react";
-import { Dimensions, Modal, StyleSheet, Text, TouchableOpacity, View } from "react-native";
+import {
+  Dimensions,
+  Modal,
+  StyleSheet,
+  Text,
+  TouchableOpacity,
+  View,
+} from "react-native";
 
-const height = Dimensions.get('window').height
+const height = Dimensions.get("window").height;
 
 const modalText =
   "The triangle skill game is a classic puzzle." +
@@ -16,7 +23,7 @@ export default function RulesModal(props) {
     <Modal
       animationType="slide"
       transparent={true}
-      visible={props.modalVisible}
+      visible={props.rulesModalVisible}
     >
       <View style={styles.ModalBackground}>
         <View style={styles.modalView}>
@@ -105,7 +112,7 @@ const styles = StyleSheet.create({
   },
   modalText: {
     marginBottom: 15,
-    fontSize: 0.021*height
+    fontSize: 0.021 * height,
   },
 
   ButtonContentContainer: {
@@ -113,7 +120,6 @@ const styles = StyleSheet.create({
     borderRadius: 5,
     marginTop: 50,
     marginBottom: 10,
-
   },
   ButtonContent: {
     margin: 4,
