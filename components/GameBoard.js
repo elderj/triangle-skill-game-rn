@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import {
   Dimensions,
   ImageBackground,
@@ -9,6 +9,12 @@ import {
   View,
 } from "react-native";
 
+import {
+  InterstitialAd,
+  AdEventType,
+  TestIds,
+} from "react-native-google-mobile-ads";
+
 import GameWonModal from "./GameWonModal";
 import Circle from "./Circle";
 import RulesModal from "./RulesModal";
@@ -16,15 +22,14 @@ import RulesModal from "./RulesModal";
 import { getDefaultSpaces, getSpecificEmpty } from "../data/boardValueUtils";
 const height = Dimensions.get("window").height;
 
-// For local testing:
-const testID = "ca-app-pub-3940256099942544/1033173712";
-const adUnitID = testID;
+const adUnitID = __DEV__
+  ? TestIds.INTERSTITIAL
+  : "ca-app-pub-9896015466295501/4766046254";
 
-// For prod build/release:
-// const productionID = "ca-app-pub-9896015466295501/4766046254";
-// const adUnitID = productionID;
-
-//TODO: Implement test ad into functional component
+const interstitial = InterstitialAd.createForAdRequest(adUnitID, {
+  requestNonPersonalizedAdsOnly: true,
+  keywords: ["fashion", "clothing"],
+});
 
 export default function GameBoard(props) {
   const [rulesModalVisible, setRulesModalVisible] = useState(false);
@@ -33,18 +38,38 @@ export default function GameBoard(props) {
   const [firstSelection, setFirstSelection] = useState();
   const [pegsRemaining, setPegsRemaining] = useState(14);
   const [resetCount, setResetCount] = useState(0);
+  const [loaded, setLoaded] = useState(false);
 
   const emptySpace = { col: 0, row: 0 };
 
   const showInterstitial = async () => {
-    //Show the ad
-
-    console.log("Hello friend buy this");
+    interstitial.show();
     try {
     } catch (e) {
       console.log(e);
     }
   };
+
+  useEffect(() => {
+    if (pegsRemaining === 1) {
+      setGameWonModalVisible(true);
+    }
+  }, [pegsRemaining]);
+
+  useEffect(() => {
+    const unsubscribe = interstitial.addAdEventListener(
+      AdEventType.LOADED,
+      () => {
+        setLoaded(true);
+      }
+    );
+    interstitial.load(); // Start loading the interstitial straight away
+    return unsubscribe; // Unsubscribe from events on unmount
+  }, []);
+
+  if (!loaded) {
+    return null; // No advert ready to show yet
+  }
 
   const reset = () => {
     setPegsRemaining(14);
@@ -53,17 +78,14 @@ export default function GameBoard(props) {
   };
 
   const handleReset = () => {
-    console.log("Handle reset");
     if (pegsRemaining < 14) {
       resetCount % 2 == 0 && showInterstitial();
       setResetCount(resetCount + 1);
     }
-
     reset();
   };
 
   const clickSpace = (col, row) => {
-    // console.log("Click space " + col + " " + row);
     if (firstSelection === undefined || firstSelection.length === 0) {
       // First Selection
       if (spaces[row][col] === "filled") {
@@ -124,10 +146,6 @@ export default function GameBoard(props) {
       }
       setSpaces(newSpaces);
       setFirstSelection([]);
-
-      if (pegsRemaining === 1) {
-        setGameWonModalVisible(true);
-      }
     }
   };
 
