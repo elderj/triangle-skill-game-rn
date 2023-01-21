@@ -7,7 +7,9 @@ import {
   Quicksand_700Bold,
 } from "@expo-google-fonts/quicksand";
 import GameBoard from "./components/GameBoard";
+import GameBoardSimple from "./components/GameBoardSimple";
 import SplashModalContent from "./components/SplashModalContent";
+import "expo-dev-client";
 
 export default function App() {
   const [rulesModalVisible, setModalVisible] = useState(true);
@@ -38,6 +40,7 @@ export default function App() {
           </Text>
         )}
         <GameBoard fontsLoaded={fontsLoaded} />
+        {/* <GameBoardSimple /> */}
       </ImageBackground>
     </View>
   );

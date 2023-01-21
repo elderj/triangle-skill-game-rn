@@ -9,7 +9,6 @@ import {
   View,
 } from "react-native";
 
-import { AdMobInterstitial } from "expo-ads-admob";
 import GameWonModal from "./GameWonModal";
 import Circle from "./Circle";
 import RulesModal from "./RulesModal";
@@ -23,12 +22,12 @@ import EmptySpaceSelectionModal from "./EmptySpaceSelectionModal";
 const height = Dimensions.get("window").height;
 
 // For local testing:
-// const testID = "ca-app-pub-3940256099942544/1033173712";
-// const adUnitID = testID;
+const testID = "ca-app-pub-3940256099942544/1033173712";
+const adUnitID = testID;
 
 // For prod build/release:
-const productionID = "ca-app-pub-9896015466295501/4766046254";
-const adUnitID = productionID;
+// const productionID = "ca-app-pub-9896015466295501/4766046254";
+// const adUnitID = productionID;
 
 export default class GameBoard extends React.Component {
   constructor(props) {
@@ -59,11 +58,10 @@ export default class GameBoard extends React.Component {
   }
 
   showInterstitial = async () => {
-    AdMobInterstitial.setAdUnitID(adUnitID); // Test ID, Replace with your-admob-unit-id
+    //Show the ad
 
+    console.log("Hello friend buy this");
     try {
-      await AdMobInterstitial.requestAdAsync();
-      await AdMobInterstitial.showAdAsync();
     } catch (e) {
       console.log(e);
     }
