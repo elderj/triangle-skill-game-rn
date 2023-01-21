@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useState } from "react";
 import {
   Dimensions,
   ImageBackground,
@@ -13,12 +13,7 @@ import GameWonModal from "./GameWonModal";
 import Circle from "./Circle";
 import RulesModal from "./RulesModal";
 
-import {
-  getDefaultSpaces,
-  getAllEmptySpaces,
-  getSpecificEmpty,
-} from "../data/boardValueUtils";
-import EmptySpaceSelectionModal from "./EmptySpaceSelectionModal";
+import { getDefaultSpaces, getSpecificEmpty } from "../data/boardValueUtils";
 const height = Dimensions.get("window").height;
 
 // For local testing:
@@ -29,35 +24,19 @@ const adUnitID = testID;
 // const productionID = "ca-app-pub-9896015466295501/4766046254";
 // const adUnitID = productionID;
 
-export default class GameBoard extends React.Component {
-  constructor(props) {
-    super(props);
-    this.pegsRemaining = 14;
-    this.resetCount = 0;
-    this.state = {
-      spaces: getDefaultSpaces(),
-      rulesModalVisible: false,
-      gameWonModalVisible: false,
-      setEmptySpaceModalVisible: false,
-      emptySpace: { col: 0, row: 0 },
-    };
-  }
+//TODO: Implement test ad into functional component
 
-  showRulesModal() {
-    this.setState({ rulesModalVisible: true });
-  }
-  hideRulesModal() {
-    this.setState({ rulesModalVisible: false });
-  }
+export default function GameBoard(props) {
+  const [rulesModalVisible, setRulesModalVisible] = useState(false);
+  const [gameWonModalVisible, setGameWonModalVisible] = useState(false);
+  const [spaces, setSpaces] = useState(getDefaultSpaces());
+  const [firstSelection, setFirstSelection] = useState();
+  const [pegsRemaining, setPegsRemaining] = useState(14);
+  const [resetCount, setResetCount] = useState(0);
 
-  showSetEmptyModal() {
-    this.setState({ setEmptySpaceModalVisible: true });
-  }
-  hideSetEmptyModal() {
-    this.setState({ setEmptySpaceModalVisible: false });
-  }
+  const emptySpace = { col: 0, row: 0 };
 
-  showInterstitial = async () => {
+  const showInterstitial = async () => {
     //Show the ad
 
     console.log("Hello friend buy this");
@@ -67,57 +46,51 @@ export default class GameBoard extends React.Component {
     }
   };
 
-  reset() {
-    this.pegsRemaining = 14;
-    this.setState({
-      spaces: getSpecificEmpty(
-        this.state.emptySpace.col,
-        this.state.emptySpace.row
-      ),
-      firstSelection: [],
-    });
-  }
+  const reset = () => {
+    setPegsRemaining(14);
+    setFirstSelection([]);
+    setSpaces(getSpecificEmpty(emptySpace.col, emptySpace.row));
+  };
 
-  handleReset() {
-    if (this.pegsRemaining < 14) {
-      this.resetCount % 2 == 0 && this.showInterstitial();
-      this.resetCount++;
+  const handleReset = () => {
+    console.log("Handle reset");
+    if (pegsRemaining < 14) {
+      resetCount % 2 == 0 && showInterstitial();
+      setResetCount(resetCount + 1);
     }
 
-    this.reset();
-  }
+    reset();
+  };
 
-  clickSpace(col, row) {
-    if (
-      this.state.firstSelection === undefined ||
-      this.state.firstSelection.length === 0
-    ) {
+  const clickSpace = (col, row) => {
+    // console.log("Click space " + col + " " + row);
+    if (firstSelection === undefined || firstSelection.length === 0) {
       // First Selection
-      if (this.state.spaces[row][col] === "filled") {
-        this.setState({ firstSelection: [row, col] });
-        const newSpaces = this.state.spaces.slice();
+      if (spaces[row][col] === "filled") {
+        setFirstSelection([row, col]);
+        const newSpaces = spaces.slice();
         newSpaces[row][col] = "selected";
-        this.setState({ spaces: newSpaces });
+        setSpaces(newSpaces);
       }
     } else {
       // Second Selection
-      let previouslySelectedRow = this.state.firstSelection[0];
-      let previouslySelectedCol = this.state.firstSelection[1];
-      const newSpaces = this.state.spaces.slice();
+      let previouslySelectedRow = firstSelection[0];
+      let previouslySelectedCol = firstSelection[1];
+      const newSpaces = spaces.slice();
       newSpaces[previouslySelectedRow][previouslySelectedCol] = "filled";
 
-      if (this.state.spaces[row][col] === "open") {
+      if (spaces[row][col] === "open") {
         //Check 1: horizontal moves
         if (
           row === previouslySelectedRow &&
           Math.abs(col - previouslySelectedCol) === 2
         ) {
           let middleCol = col > previouslySelectedCol ? col - 1 : col + 1;
-          if (this.state.spaces[row][middleCol] === "filled") {
+          if (spaces[row][middleCol] === "filled") {
             newSpaces[row][col] = "filled";
             newSpaces[row][previouslySelectedCol] = "open";
             newSpaces[row][middleCol] = "open";
-            this.pegsRemaining--;
+            setPegsRemaining(pegsRemaining - 1);
           }
         }
 
@@ -127,11 +100,11 @@ export default class GameBoard extends React.Component {
           Math.abs(row - previouslySelectedRow) === 2
         ) {
           let middleRow = row > previouslySelectedRow ? row - 1 : row + 1;
-          if (this.state.spaces[middleRow][col] === "filled") {
+          if (spaces[middleRow][col] === "filled") {
             newSpaces[previouslySelectedRow][previouslySelectedCol] = "open";
             newSpaces[middleRow][col] = "open";
             newSpaces[row][col] = "filled";
-            this.pegsRemaining--;
+            setPegsRemaining(pegsRemaining - 1);
           }
         }
         // // Check 3: Diagonal (Inverse) Moves
@@ -141,32 +114,24 @@ export default class GameBoard extends React.Component {
         ) {
           let middleRow = row > previouslySelectedRow ? row - 1 : row + 1;
           let middleCol = col > previouslySelectedCol ? col - 1 : col + 1;
-          if (this.state.spaces[middleRow][middleCol] === "filled") {
+          if (spaces[middleRow][middleCol] === "filled") {
             newSpaces[previouslySelectedRow][previouslySelectedCol] = "open";
             newSpaces[middleRow][middleCol] = "open";
             newSpaces[row][col] = "filled";
-            this.pegsRemaining--;
+            setPegsRemaining(pegsRemaining - 1);
           }
         }
       }
-      this.setState({ spaces: newSpaces, firstSelection: [] });
-      if (this.pegsRemaining === 1) {
-        this.setState({ gameWonModalVisible: true });
+      setSpaces(newSpaces);
+      setFirstSelection([]);
+
+      if (pegsRemaining === 1) {
+        setGameWonModalVisible(true);
       }
     }
-  }
+  };
 
-  setEmpty(col, row) {
-    this.setState({
-      spaces: getSpecificEmpty(col, row),
-      emptySpace: { col, row },
-      firstSelection: [],
-    });
-    this.pegsRemaining = 14;
-    this.hideSetEmptyModal();
-  }
-
-  renderSpaces(spacesToRender, gameSetupMode) {
+  const renderSpaces = (spacesToRender) => {
     const rows = [];
     spacesToRender.forEach((row, rIdx) => {
       const cols = [];
@@ -175,9 +140,7 @@ export default class GameBoard extends React.Component {
           <TouchableOpacity
             key={cIdx}
             onPress={() => {
-              gameSetupMode
-                ? this.setEmpty(cIdx, rIdx)
-                : this.clickSpace(cIdx, rIdx);
+              clickSpace(cIdx, rIdx);
             }}
           >
             <Circle condition={spacesToRender[rIdx][cIdx]} />
@@ -192,154 +155,124 @@ export default class GameBoard extends React.Component {
     });
 
     return <View>{rows}</View>;
-  }
+  };
 
-  render() {
-    return (
-      <View style={styles.GameLogicContainer}>
-        <RulesModal
-          rulesModalVisible={this.state.rulesModalVisible}
-          hide={() => this.hideRulesModal()}
-          fontsLoaded={this.props.fontsLoaded}
-        />
-        <ImageBackground
-          source={require("../assets/tri.png")}
-          style={{
-            aspectRatio: 1,
-            resizeMode: "contain",
-          }}
-        >
-          <View style={styles.Board}>
-            {this.state.spaces && this.renderSpaces(this.state.spaces, false)}
-          </View>
-          <View style={styles.PegsRemainingContainer}>
-            {!this.props.fontsLoaded ? (
-              <Text style={styles.PegsRemaining}>
-                Pegs Remaining: {this.pegsRemaining}
-              </Text>
-            ) : (
-              <Text
-                style={{
-                  ...styles.PegsRemaining,
-                  fontFamily: "Quicksand_600SemiBold",
-                }}
-              >
-                Pegs Remaining: {this.pegsRemaining}
-              </Text>
-            )}
-          </View>
-        </ImageBackground>
-        <GameWonModal
-          rulesModalVisible={this.state.gameWonModalVisible}
-          hide={() => {
-            this.setState({ gameWonModalVisible: false });
-            this.reset();
-          }}
-          fontsLoaded={this.props.fontsLoaded}
-        />
-        <EmptySpaceSelectionModal
-          rulesModalVisible={this.state.setEmptySpaceModalVisible}
-          hide={() => {
-            this.setState({ setEmptySpaceModalVisible: false });
-          }}
-          fontsLoaded={this.props.fontsLoaded}
-          renderSpaces={() => this.renderSpaces(getAllEmptySpaces(), true)}
-        />
-        <ImageBackground
-          source={require("../assets/trianglesGray.png")}
-          style={styles.ImageBg}
-        >
-          <View style={styles.FooterLine}>
-            <TouchableOpacity
-              onPress={() => {
-                this.showRulesModal();
+  return (
+    <View style={styles.GameLogicContainer}>
+      <RulesModal
+        rulesModalVisible={rulesModalVisible}
+        hide={() => setRulesModalVisible(false)}
+        fontsLoaded={props.fontsLoaded}
+      />
+      <ImageBackground
+        source={require("../assets/tri.png")}
+        style={{
+          aspectRatio: 1,
+          resizeMode: "contain",
+        }}
+      >
+        <View style={styles.Board}>
+          {spaces && renderSpaces(spaces, false)}
+        </View>
+        <View style={styles.PegsRemainingContainer}>
+          {!props.fontsLoaded ? (
+            <Text style={styles.PegsRemaining}>
+              Pegs Remaining: {pegsRemaining}
+            </Text>
+          ) : (
+            <Text
+              style={{
+                ...styles.PegsRemaining,
+                fontFamily: "Quicksand_600SemiBold",
               }}
             >
-              <View style={styles.ButtonContentContainer}>
-                {!this.props.fontsLoaded ? (
-                  <Text style={styles.ButtonContent}>Rules</Text>
-                ) : (
-                  <Text
-                    style={{
-                      ...styles.ButtonContent,
-                      fontFamily: "Quicksand_600SemiBold",
-                    }}
-                  >
-                    Rules
-                  </Text>
-                )}
-              </View>
-            </TouchableOpacity>
-            <TouchableOpacity
-              onPress={() => {
-                this.showSetEmptyModal();
-              }}
-            >
-              <View style={styles.ButtonContentContainer}>
-                {!this.props.fontsLoaded ? (
-                  <Text style={styles.ButtonContent}>Set Empty</Text>
-                ) : (
-                  <Text
-                    style={{
-                      ...styles.ButtonContent,
-                      fontFamily: "Quicksand_600SemiBold",
-                    }}
-                  >
-                    Set Empty
-                  </Text>
-                )}
-              </View>
-            </TouchableOpacity>
-            <TouchableOpacity
-              onPress={() => {
-                this.handleReset();
-              }}
-            >
-              <View style={styles.ButtonContentContainer}>
-                {!this.props.fontsLoaded ? (
-                  <Text style={styles.ButtonContent}>Reset</Text>
-                ) : (
-                  <Text
-                    style={{
-                      ...styles.ButtonContent,
-                      fontFamily: "Quicksand_600SemiBold",
-                    }}
-                  >
-                    Reset
-                  </Text>
-                )}
-              </View>
-            </TouchableOpacity>
-          </View>
-          <View style={styles.FooterLine}>
-            <View style={styles.FooterLine}>
-              <Text
-                onPress={() =>
-                  Linking.openURL(
-                    "https://elderdesignconcepts.com/#/portfolio/triangle-skill-game/terms"
-                  )
-                }
-                style={{ ...styles.informationalLinkText, textAlign: "right" }}
-              >
-                Terms of Service
-              </Text>
-              <Text style={styles.separator}>|</Text>
-              <Text
-                onPress={() =>
-                  Linking.openURL(
-                    "https://elderdesignconcepts.com/#/portfolio/triangle-skill-game/privacy"
-                  )
-                }
-                style={{ ...styles.informationalLinkText, textAlign: "left" }}
-              >
-                Privacy Policy
-              </Text>
+              Pegs Remaining: {pegsRemaining}
+            </Text>
+          )}
+        </View>
+      </ImageBackground>
+      <GameWonModal
+        rulesModalVisible={gameWonModalVisible}
+        hide={() => {
+          setGameWonModalVisible(false);
+          reset();
+        }}
+        fontsLoaded={props.fontsLoaded}
+      />
+      <ImageBackground
+        source={require("../assets/trianglesGray.png")}
+        style={styles.ImageBg}
+      >
+        <View style={styles.FooterLine}>
+          <TouchableOpacity
+            onPress={() => {
+              setRulesModalVisible(true);
+            }}
+          >
+            <View style={styles.ButtonContentContainer}>
+              {!props.fontsLoaded ? (
+                <Text style={styles.ButtonContent}>Rules</Text>
+              ) : (
+                <Text
+                  style={{
+                    ...styles.ButtonContent,
+                    fontFamily: "Quicksand_600SemiBold",
+                  }}
+                >
+                  Rules
+                </Text>
+              )}
             </View>
+          </TouchableOpacity>
+          <TouchableOpacity
+            onPress={() => {
+              handleReset();
+            }}
+          >
+            <View style={styles.ButtonContentContainer}>
+              {!props.fontsLoaded ? (
+                <Text style={styles.ButtonContent}>Reset</Text>
+              ) : (
+                <Text
+                  style={{
+                    ...styles.ButtonContent,
+                    fontFamily: "Quicksand_600SemiBold",
+                  }}
+                >
+                  Reset
+                </Text>
+              )}
+            </View>
+          </TouchableOpacity>
+        </View>
+        <View style={styles.FooterLine}>
+          <View style={styles.FooterLine}>
+            <Text
+              onPress={() =>
+                Linking.openURL(
+                  "https://elderdesignconcepts.com/#/portfolio/triangle-skill-game/terms"
+                )
+              }
+              style={{ ...styles.informationalLinkText, textAlign: "right" }}
+            >
+              Terms of Service
+            </Text>
+            <Text style={styles.separator}>|</Text>
+            <Text
+              onPress={() =>
+                Linking.openURL(
+                  "https://elderdesignconcepts.com/#/portfolio/triangle-skill-game/privacy"
+                )
+              }
+              style={{ ...styles.informationalLinkText, textAlign: "left" }}
+            >
+              Privacy Policy
+            </Text>
           </View>
-        </ImageBackground>
-      </View>
-    );
-  }
+        </View>
+      </ImageBackground>
+    </View>
+  );
 }
 
 const styles = StyleSheet.create({
