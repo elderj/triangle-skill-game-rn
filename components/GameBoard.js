@@ -9,11 +9,7 @@ import {
   View,
 } from "react-native";
 
-import {
-  InterstitialAd,
-  AdEventType,
-  TestIds,
-} from "react-native-google-mobile-ads";
+import { useInterstitialAd } from "react-native-google-mobile-ads";
 
 import GameWonModal from "./GameWonModal";
 import Circle from "./Circle";
@@ -22,15 +18,6 @@ import RulesModal from "./RulesModal";
 import { getDefaultSpaces, getSpecificEmpty } from "../data/boardValueUtils";
 const height = Dimensions.get("window").height;
 
-const adUnitID = __DEV__
-  ? TestIds.INTERSTITIAL
-  : "ca-app-pub-9896015466295501/4766046254";
-
-const interstitial = InterstitialAd.createForAdRequest(adUnitID, {
-  requestNonPersonalizedAdsOnly: true,
-  keywords: ["fashion", "clothing"],
-});
-
 export default function GameBoard(props) {
   const [rulesModalVisible, setRulesModalVisible] = useState(false);
   const [gameWonModalVisible, setGameWonModalVisible] = useState(false);
@@ -38,17 +25,15 @@ export default function GameBoard(props) {
   const [firstSelection, setFirstSelection] = useState();
   const [pegsRemaining, setPegsRemaining] = useState(14);
   const [resetCount, setResetCount] = useState(0);
-  const [loaded, setLoaded] = useState(false);
 
   const emptySpace = { col: 0, row: 0 };
 
-  const showInterstitial = async () => {
-    interstitial.show();
-    try {
-    } catch (e) {
-      console.log(e);
+  const { isLoaded, load, show } = useInterstitialAd(
+    "ca-app-pub-9896015466295501/8234658170",
+    {
+      requestNonPersonalizedAdsOnly: true,
     }
-  };
+  );
 
   useEffect(() => {
     if (pegsRemaining === 1) {
@@ -57,19 +42,9 @@ export default function GameBoard(props) {
   }, [pegsRemaining]);
 
   useEffect(() => {
-    const unsubscribe = interstitial.addAdEventListener(
-      AdEventType.LOADED,
-      () => {
-        setLoaded(true);
-      }
-    );
-    interstitial.load(); // Start loading the interstitial straight away
-    return unsubscribe; // Unsubscribe from events on unmount
-  }, []);
-
-  if (!loaded) {
-    return null; // No advert ready to show yet
-  }
+    // Start loading the interstitial straight away
+    load();
+  }, [load]);
 
   const reset = () => {
     setPegsRemaining(14);
@@ -79,8 +54,12 @@ export default function GameBoard(props) {
 
   const handleReset = () => {
     if (pegsRemaining < 14) {
-      resetCount % 2 == 0 && showInterstitial();
       setResetCount(resetCount + 1);
+      if (resetCount % 2 === 1) {
+        if (isLoaded) {
+          show();
+        }
+      }
     }
     reset();
   };
