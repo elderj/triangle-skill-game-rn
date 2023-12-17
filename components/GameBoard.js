@@ -12,15 +12,17 @@ import {
 import { useInterstitialAd } from "react-native-google-mobile-ads";
 
 import GameWonModal from "./GameWonModal";
-import Circle from "./Circle";
+import PickASpaceModal from "./PickASpaceModal";
 import RulesModal from "./RulesModal";
+import Circle from "./Circle";
 
 import { getDefaultSpaces, getSpecificEmpty } from "../data/boardValueUtils";
 const height = Dimensions.get("window").height;
 
 export default function GameBoard(props) {
-  const [rulesModalVisible, setRulesModalVisible] = useState(false);
   const [gameWonModalVisible, setGameWonModalVisible] = useState(false);
+  const [pickASpaceVisible, setPickASpaceVisible] = useState(false);
+  const [rulesModalVisible, setRulesModalVisible] = useState(false);
   const [spaces, setSpaces] = useState(getDefaultSpaces());
   const [firstSelection, setFirstSelection] = useState();
   const [pegsRemaining, setPegsRemaining] = useState(14);
@@ -156,13 +158,28 @@ export default function GameBoard(props) {
 
   return (
     <View style={styles.GameLogicContainer}>
+      <GameWonModal
+        rulesModalVisible={gameWonModalVisible}
+        hide={() => {
+          setGameWonModalVisible(false);
+          reset();
+        }}
+        fontsLoaded={props.fontsLoaded}
+      />
+      <PickASpaceModal
+        pickASpaceVisible={pickASpaceVisible}
+        hide={() => setPickASpaceVisible(false)}
+        fontsLoaded={props.fontsLoaded}
+        spaces={spaces}
+        setSpaces={setSpaces}
+      />
       <RulesModal
         rulesModalVisible={rulesModalVisible}
         hide={() => setRulesModalVisible(false)}
         fontsLoaded={props.fontsLoaded}
       />
       <ImageBackground
-        source={require("../assets/tri.png")}
+        source={require("../assets/triDark.png")}
         style={{
           aspectRatio: 1,
           resizeMode: "contain",
@@ -188,14 +205,6 @@ export default function GameBoard(props) {
           )}
         </View>
       </ImageBackground>
-      <GameWonModal
-        rulesModalVisible={gameWonModalVisible}
-        hide={() => {
-          setGameWonModalVisible(false);
-          reset();
-        }}
-        fontsLoaded={props.fontsLoaded}
-      />
       <ImageBackground
         source={require("../assets/trianglesGray.png")}
         style={styles.ImageBg}
@@ -221,6 +230,28 @@ export default function GameBoard(props) {
               )}
             </View>
           </TouchableOpacity>
+          {pegsRemaining && pegsRemaining === 14 && (
+            <TouchableOpacity
+              onPress={() => {
+                setPickASpaceVisible(true);
+              }}
+            >
+              <View style={styles.ButtonContentContainer}>
+                {!props.fontsLoaded ? (
+                  <Text style={styles.ButtonContent}>Rules</Text>
+                ) : (
+                  <Text
+                    style={{
+                      ...styles.ButtonContent,
+                      fontFamily: "Quicksand_600SemiBold",
+                    }}
+                  >
+                    Set Empty
+                  </Text>
+                )}
+              </View>
+            </TouchableOpacity>
+          )}
           <TouchableOpacity
             onPress={() => {
               handleReset();

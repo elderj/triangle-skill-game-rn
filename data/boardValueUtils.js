@@ -8,7 +8,7 @@ export const getDefaultSpaces = () => {
   ];
 };
 
-export const getAllEmptySpaces = () => {
+export const getAllFilledSpaces = () => {
   return [
     ["filled"],
     ["filled", "filled"],
@@ -19,7 +19,7 @@ export const getAllEmptySpaces = () => {
 };
 
 export const getSpecificEmpty = (col, row) => {
-  let tempSpaces = getAllEmptySpaces();
+  let tempSpaces = getAllFilledSpaces();
   tempSpaces[row][col] = "open";
   return tempSpaces;
 };
