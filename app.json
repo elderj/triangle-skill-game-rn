@@ -17,7 +17,8 @@
     },
     "assetBundlePatterns": ["**/*"],
     "android": {
-      "versionCode": 12,
+      "versionCode": 13,
+      "sdkVersion": "41.0.0",
       "permissions": [],
       "package": "com.elderdesignconcepts.triangleskillgame",
       "adaptiveIcon": {
