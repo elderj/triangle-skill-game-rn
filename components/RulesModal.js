@@ -11,12 +11,17 @@ import {
 const height = Dimensions.get("window").height;
 
 const modalText =
-  "The triangle skill game is a classic puzzle." +
-  "\n\nIt is played by jumping 1 peg over another into an empty space on the board." +
-  '\n\nThe peg which just got "jumped" is then removed.' +
-  "\n\nThe objective of the game is to continue jumping over pegs until only 1 peg remains, when this happens you win!" +
-  "\n\nHowever, that doesnt always happen and sometimes you are left with more pegs on the board with no available moves." +
-  "\n\nThe game is over when there are no more available moves.";
+  "Welcome to the Triangle Peg Jumping Game! " +
+  "This classic puzzle challenges your skills and strategic thinking.\n\n" +
+  "How to Play:\n" +
+  "- Jump one peg over another into an empty space on the board.\n" +
+  "- The peg that was jumped over is then removed.\n" +
+  "- Continue jumping over pegs until only one peg remains to win!\n\n" +
+  "Game Over:\n" +
+  "- If no more available moves are left, the game ends.\n\n" +
+  "Extra Challenge:\n" +
+  "- Try changing the location of the empty space with the Set Empty option.\n" +
+  "- Note: This option is available only when 14 pegs remain.";
 
 export default function RulesModal(props) {
   return (
